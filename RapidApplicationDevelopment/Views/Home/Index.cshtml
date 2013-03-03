@@ -1,0 +1,113 @@
+﻿<header>
+    <div class="content-wrapper">
+        <div class="float-left">
+            <p class="site-title">
+                <a href="~/">Rapid application development using MVC4 and Knockout.js</a>
+            </p>
+        </div>
+    </div>
+</header>
+<div id="body">
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>Welcome to Iscu mail</h1>
+            </hgroup>
+        </div>
+    </section>
+    <section class="content-wrapper main-content clear-fix">
+        <div id="left">
+            <ul data-bind="foreach: filters">
+                <li data-bind="text: name()+' '+mailCount(),click: showFilter"></li>
+            </ul>
+        </div>
+        <div id="right">
+            <section id="mails" data-bind="visible: !showMail()">
+                <ul data-bind="foreach: mails">
+                    <li data-bind="click: $parent.displayMail">
+                        <span data-bind="text: from"></span>
+                        <div data-bind="text: title" class="title"></div>
+                    </li>
+                </ul>
+            </section>
+            <section id="mail" data-bind="visible: showMail, with: currentMail">
+                <div data-bind="text: title" class="title"></div>
+                <div>From: <span data-bind="text: from" class="from"></span></div>
+                <div>To: <span data-bind="text: to" class="to"></span></div>
+                <div data-bind="foreach: attachments" class="attachments"><span data-bind="text:filename"></span></div>
+                <div data-bind="text: body" class="body"></div>
+            </section>
+        </div>
+
+
+    </section>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        function Filter(data) {
+            var self = this;
+            self.name = ko.observable(data.Name);
+            self.mailCount = ko.observable(data.MailCount);
+            self.id = ko.observable(data.Id);
+
+            self.showFilter = function (filter) {
+                location.hash = filter.id();
+            }
+        }
+
+        function Mail(data) {
+            var self = this;
+            self.title = ko.observable(data.Title);
+            self.from = ko.observable(data.From);
+            self.to = ko.observable(data.To);
+            self.attachments = ko.observableArray(data.Attachments);
+            self.body = ko.observable(data.Body);
+        }
+
+        function ApplicationViewModel() {
+            var self = this;
+            self.filters = ko.observableArray();
+            self.mails = ko.observableArray();
+            self.currentMail = ko.observable();
+            self.showMail = ko.observable();
+            self.filterId = ko.observable();
+
+
+            self.getFilterMails = function (id) {
+                $.getJSON('@Url.HttpRouteUrl("DefaultApi", new { controller = "filters" })?id=' + id, function (response) {
+                    var parsedMails = $.map(response, function (value) { return new Mail(value) });
+                    self.mails(parsedMails);
+                    self.showMail(false);
+                });
+            };
+
+            self.displayMail = function (mail) {
+                self.currentMail(mail);
+                self.showMail(true);
+            };
+
+            $.getJSON('@Url.HttpRouteUrl("DefaultApi", new { controller = "filters" })', function (data) {
+                var parsedFilters = $.map(data, function (value) { return new Filter(value); });
+                self.filters(parsedFilters);
+                self.getFilterMails(parsedFilters[0].id());
+            });
+
+            Sammy(function () {
+                this.get('#:filter', function () {
+                    self.filterId(this.params.filter);
+                    self.getFilterMails(this.params.filter);
+                });
+
+                this.get('#:filter/:mailId', function () {
+                    self.chosenFolderId(this.params.folder);
+                });
+
+                this.get('', function () { this.app.runRoute('get', '#Inbox') });
+            }).run();
+
+        }
+
+        ko.applyBindings(new ApplicationViewModel());
+
+    </script>
+}

@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="RapidApplicationDevelopmentModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityContainer Name="RapidApplicationDevelopmentModelStoreContainer">
+          <EntitySet Name="Filters" EntityType="RapidApplicationDevelopmentModel.Store.Filters" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Mails" EntityType="RapidApplicationDevelopmentModel.Store.Mails" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="MailsToFilters" EntityType="RapidApplicationDevelopmentModel.Store.MailsToFilters" store:Type="Tables" Schema="dbo" />
+          <AssociationSet Name="FK_MailsToFilters_Folders" Association="RapidApplicationDevelopmentModel.Store.FK_MailsToFilters_Folders">
+            <End Role="Filters" EntitySet="Filters" />
+            <End Role="MailsToFilters" EntitySet="MailsToFilters" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MailsToFilters_Mails" Association="RapidApplicationDevelopmentModel.Store.FK_MailsToFilters_Mails">
+            <End Role="Mails" EntitySet="Mails" />
+            <End Role="MailsToFilters" EntitySet="MailsToFilters" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Filters">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="UserId" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Mails">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="nvarchar" MaxLength="250" />
+          <Property Name="From" Type="nvarchar" Nullable="false" MaxLength="250" />
+          <Property Name="To" Type="nvarchar" Nullable="false" MaxLength="1000" />
+          <Property Name="Cc" Type="nvarchar" MaxLength="1000" />
+          <Property Name="Bcc" Type="nvarchar" MaxLength="1000" />
+          <Property Name="Body" Type="ntext" Nullable="false" />
+          <Property Name="UserId" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MailsToFilters">
+          <Key>
+            <PropertyRef Name="MailId" />
+            <PropertyRef Name="FolderId" />
+          </Key>
+          <Property Name="MailId" Type="int" Nullable="false" />
+          <Property Name="FolderId" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_MailsToFilters_Folders">
+          <End Role="Filters" Type="RapidApplicationDevelopmentModel.Store.Filters" Multiplicity="1" />
+          <End Role="MailsToFilters" Type="RapidApplicationDevelopmentModel.Store.MailsToFilters" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Filters">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="MailsToFilters">
+              <PropertyRef Name="FolderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MailsToFilters_Mails">
+          <End Role="Mails" Type="RapidApplicationDevelopmentModel.Store.Mails" Multiplicity="1" />
+          <End Role="MailsToFilters" Type="RapidApplicationDevelopmentModel.Store.MailsToFilters" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mails">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="MailsToFilters">
+              <PropertyRef Name="MailId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="RapidApplicationDevelopmentModel" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="Entities" p1:LazyLoadingEnabled="true">
+          <EntitySet Name="Filters" EntityType="RapidApplicationDevelopmentModel.Filter" />
+          <EntitySet Name="Mails" EntityType="RapidApplicationDevelopmentModel.Mail" />
+          <AssociationSet Name="MailsToFilters" Association="RapidApplicationDevelopmentModel.MailsToFilters">
+            <End Role="Filters" EntitySet="Filters" />
+            <End Role="Mails" EntitySet="Mails" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Filter">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="UserId" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="Mails" Relationship="RapidApplicationDevelopmentModel.MailsToFilters" FromRole="Filters" ToRole="Mails" />
+        </EntityType>
+        <EntityType Name="Mail">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="250" Unicode="true" FixedLength="false" />
+          <Property Name="From" Type="String" Nullable="false" MaxLength="250" Unicode="true" FixedLength="false" />
+          <Property Name="To" Type="String" Nullable="false" MaxLength="1000" Unicode="true" FixedLength="false" />
+          <Property Name="Cc" Type="String" MaxLength="1000" Unicode="true" FixedLength="false" />
+          <Property Name="Bcc" Type="String" MaxLength="1000" Unicode="true" FixedLength="false" />
+          <Property Name="Body" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="UserId" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="Filters" Relationship="RapidApplicationDevelopmentModel.MailsToFilters" FromRole="Mails" ToRole="Filters" />
+        </EntityType>
+        <Association Name="MailsToFilters">
+          <End Role="Filters" Type="RapidApplicationDevelopmentModel.Filter" Multiplicity="*" />
+          <End Role="Mails" Type="RapidApplicationDevelopmentModel.Mail" Multiplicity="*" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="RapidApplicationDevelopmentModelStoreContainer" CdmEntityContainer="Entities">
+          <EntitySetMapping Name="Filters">
+            <EntityTypeMapping TypeName="RapidApplicationDevelopmentModel.Filter">
+              <MappingFragment StoreEntitySet="Filters">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mails">
+            <EntityTypeMapping TypeName="RapidApplicationDevelopmentModel.Mail">
+              <MappingFragment StoreEntitySet="Mails">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="From" ColumnName="From" />
+                <ScalarProperty Name="To" ColumnName="To" />
+                <ScalarProperty Name="Cc" ColumnName="Cc" />
+                <ScalarProperty Name="Bcc" ColumnName="Bcc" />
+                <ScalarProperty Name="Body" ColumnName="Body" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="MailsToFilters" TypeName="RapidApplicationDevelopmentModel.MailsToFilters" StoreEntitySet="MailsToFilters">
+            <EndProperty Name="Filters">
+              <ScalarProperty Name="Id" ColumnName="FolderId" />
+            </EndProperty>
+            <EndProperty Name="Mails">
+              <ScalarProperty Name="Id" ColumnName="MailId" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="False" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
